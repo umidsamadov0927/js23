@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="../js21Home/homeOne/main.js"></script>
+</head>
+<body>
+<form id="form">
+    <div class="inputDiv">
+        <input class="input" type="text" name="inputOne" id="title" placeholder="title">
+        <input class="input" type="text" name="inputTwo" id="description" placeholder="description">
+        <input class="input" type="text" name="inputThree" id="image_url" placeholder="image_url">
+        <select name="select" id="category">
+            <option>electronics</option>
+            <option>clothing</option>
+            <option>books</option>
+            <option>home</option>
+            <option>other</option>
+        </select>
+        <select name="select2" id="condition">
+            <option>new</option>
+            <option>used</option>
+            <option>broken</option>
+        </select>
+        <button  class="button" id="button">Enter</button>
+    </div>
+</form>
+<div class="divBOX" id="box"></div>
+<div id="loader" style="display: none" class="loader"></div>
+<div id="errors"></div>
+<script src="main.js"></script>
+</body>
+</html>
