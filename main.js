@@ -7,14 +7,15 @@ let form = document.getElementById("form");
 let button = document.getElementById("button");
 let loader = document.getElementById("loader");
 let boxOne = document.getElementById("box");
+let output_div = document.getElementById("output_div");
 title.addEventListener("input", e => {
     e.preventDefault();
-    let regEx = /^[a-zA-Z]{3,9}$/
+    let regEx = /^[a-zA-Z0-9\s]{3,9}$/
     if (regEx.test(title.value)) {
         title.style.boxShadow = "2px 2px 10px green";
         title.style.border = "1px solid green";
         button.style.display = "block";
-    }else {
+    } else {
         title.style.border = "none"
         title.style.border = "1px solid red";
         title.style.boxShadow = "2px 2px 10px red";
@@ -24,18 +25,16 @@ title.addEventListener("input", e => {
 })
 description.addEventListener("input", e => {
     e.preventDefault();
-    let regEx_two = /^[a-zA-Z]{2,12}$/
+    let regEx_two = /^[a-zA-Z0-9\s0]{2,15}$/
     if (regEx_two.test(description.value)) {
         description.style.boxShadow = "2px 2px 10px green";
         description.style.border = "1px solid green";
         button.style.display = "block";
-    }else {
+    } else {
         description.style.border = "none"
         description.style.boxShadow = "2px 2px 10px red";
         button.style.display = "none";
         description.style.border = "1px solid red";
-        errors.textContent = "Kamida 2ta harf va kopida 12ta harf bulishi shart"
-        errors.style.color = "red"
 
     }
 })
@@ -46,23 +45,22 @@ image_url.addEventListener("input", e => {
         image_url.style.boxShadow = "2px 2px 10px green";
         image_url.style.border = "1px solid green";
         button.style.display = "block";
-    }else {
+    } else {
         image_url.style.border = "none"
         image_url.style.boxShadow = "2px 2px 10px red";
         button.style.display = "none";
         image_url.style.border = "1px solid red";
-        errors.textContent = "textni boshi faqat https:// bilan boshlanishi kerak"
-        errors.style.color = "red"
     }
 })
 form.addEventListener("submit", (e) => {
     e.preventDefault();
     main()
 })
+
 async function main() {
     loader.style.display = "block";
     try {
-        let data = await fetch("https://effective-mobile.duckdns.org/api/ads/" ,{
+        let data = await fetch("https://effective-mobile.duckdns.org/api/ads/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -83,17 +81,17 @@ async function main() {
         if (data.ok) {
             alert("success bro");
             get()
-        }else {
+        } else {
             alert("error akam");
         }
-    }catch(err) {
+    } catch (err) {
         console.log(err)
         alert("error bolayapdi");
-    }
-    finally {
+    } finally {
         loader.style.display = "none";
     }
 }
+
 async function get() {
     loader.style.display = "block";
     boxOne.innerHTML = "";
@@ -103,17 +101,17 @@ async function get() {
 
         if (result.results && result.results.length > 0) {
             forData(result.results)
-        }else {
+        } else {
             alert("Malumot topilmadi ?");
         }
-    }catch(err) {
+    } catch (err) {
         console.log(err)
         alert(" ikkinchi try cacheda error ");
-    }
-    finally {
+    } finally {
         loader.style.display = "none";
     }
 }
+
 function forData(result) {
     boxOne.innerHTML = ``
     result.forEach((item) => {
@@ -121,13 +119,78 @@ function forData(result) {
         elementDiv.innerHTML = `
         <div class="datajs">
         <img class="images" src="${item.image_url}" alt="${item.image_url}">
-        <p>${"Nomi: "+item.title}</p>
-        <p>${"Holati: "+item.description}</p>
+        <p>${"Nomi: " + item.title}</p>
+        <p>${"Holati: " + item.description}</p>
         <span class="selectOne">${item.category}</span>
         <span class="selectTwo">${item.condition}</span>
         
-        </div>`
+        </div>
+        <span class="btnjs">
+        <button data-id="${item.id}" class="btnEdit">edit</button>
+        <button data-id="${item.id}" class="btn_delete">delete</button>
+        </span>
+
+`
         boxOne.appendChild(elementDiv)
+
+    })
+    let editBtn = document.querySelectorAll(".btnEdit");
+    editBtn.forEach(e => {
+        e.addEventListener("click", (e) => {
+            e.preventDefault();
+            renDer(e.target.getAttribute("data-id"))
+        })
+    })
+    let delete_btn = document.querySelectorAll(".btn_delete");
+    delete_btn.forEach(e => {
+        e.addEventListener("click", (e) => {
+            const id = e.target.getAttribute("data-id"); // ✅ shu yerda id ni olamiz
+            document.getElementById("yes").setAttribute("data-id", id);
+            output_div.style.display = "block";
+        });
+    });
+    modem()
+}
+
+function modem() {
+    document.getElementById("X_button").addEventListener("click", (e) => {
+        e.preventDefault();
+        output_div.style.display = "none";
+    })
+    document.getElementById("no").addEventListener("click", (e) => {
+        e.preventDefault()
+        output_div.style.display = "none";
+    })
+    document.getElementById("yes").addEventListener("click", (e) => {
+        e.preventDefault()
+        let id= e.target.getAttribute("data-id");
+        deleteRender(id)
+
     })
 }
+
+async function renDer(id) {
+    let dataId = await fetch(`https://effective-mobile.duckdns.org/api/ads/${id}/`);
+    let resultId = await dataId.json();
+    title.value = resultId.title;
+    description.value = resultId.description;
+    image_url.value = resultId.image_url;
+    category.value = resultId.category;
+    condition.value = resultId.condition;
+    alert("edit qilindi ✅")
+}
+
+async function deleteRender(id) {
+    let deleteID = await fetch(`https://effective-mobile.duckdns.org/api/ads/${id}/` ,{
+        method: "DELETE"
+    });
+    if (deleteID.ok) {
+        alert("O'chirib tashlandi ✅");
+        get()
+    }else {
+        alert("O'chirib bolmadi ❌");
+    }
+    output_div.style.display = "none";
+}
+
 get()
