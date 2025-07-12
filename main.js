@@ -8,6 +8,8 @@ let button = document.getElementById("button");
 let loader = document.getElementById("loader");
 let boxOne = document.getElementById("box");
 let output_div = document.getElementById("output_div");
+let i = false
+let id
 title.addEventListener("input", e => {
     e.preventDefault();
     let regEx = /^[a-zA-Z0-9\s]{3,9}$/
@@ -60,30 +62,52 @@ form.addEventListener("submit", (e) => {
 async function main() {
     loader.style.display = "block";
     try {
-        let data = await fetch("https://effective-mobile.duckdns.org/api/ads/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                title: title.value,
-                description: description.value,
-                image_url: image_url.value,
-                category: category.value,
-                condition: condition.value,
+        if (i) {
+            let put = await fetch(`https://effective-mobile.duckdns.org/api/ads/${id}/` , {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    title: title.value,
+                    description: description.value,
+                    image_url: image_url.value,
+                    category: category.value,
+                    condition: condition.value,
+                })
             })
-        });
+            if (put.ok) {
+                alert("success edit brother");
+                get()
+            } else {
+                alert("error akam ❌");
+            }
+        }else {
+            let data = await fetch("https://effective-mobile.duckdns.org/api/ads/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    title: title.value,
+                    description: description.value,
+                    image_url: image_url.value,
+                    category: category.value,
+                    condition: condition.value,
+                })
+            });
+            if (data.ok) {
+                alert("success bro");
+                get()
+            } else {
+                alert("error akam");
+            }
+        }
         title.value = "";
         description.value = "";
         image_url.value = "";
         category.value = "";
         condition.value = "";
-        if (data.ok) {
-            alert("success bro");
-            get()
-        } else {
-            alert("error akam");
-        }
     } catch (err) {
         console.log(err)
         alert("error bolayapdi");
@@ -139,6 +163,8 @@ function forData(result) {
         e.addEventListener("click", (e) => {
             e.preventDefault();
             renDer(e.target.getAttribute("data-id"))
+            id = e.target.getAttribute("data-id");
+            console.log(id)
         })
     })
     let delete_btn = document.querySelectorAll(".btn_delete");
@@ -153,21 +179,31 @@ function forData(result) {
 }
 
 function modem() {
-    document.getElementById("X_button").addEventListener("click", (e) => {
+    let yesBtn = document.getElementById("yes");
+    let noBtn = document.getElementById("no");
+    let xBtn = document.getElementById("X_button");
+
+    let newYesBtn = yesBtn.cloneNode(true);
+    yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+
+
+    newYesBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        let id = e.target.getAttribute("data-id");
+        deleteRender(id);
+    });
+
+    noBtn.addEventListener("click", (e) => {
         e.preventDefault();
         output_div.style.display = "none";
-    })
-    document.getElementById("no").addEventListener("click", (e) => {
-        e.preventDefault()
-        output_div.style.display = "none";
-    })
-    document.getElementById("yes").addEventListener("click", (e) => {
-        e.preventDefault()
-        let id= e.target.getAttribute("data-id");
-        deleteRender(id)
+    });
 
-    })
+    xBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        output_div.style.display = "none";
+    });
 }
+
 
 async function renDer(id) {
     let dataId = await fetch(`https://effective-mobile.duckdns.org/api/ads/${id}/`);
@@ -178,6 +214,7 @@ async function renDer(id) {
     category.value = resultId.category;
     condition.value = resultId.condition;
     alert("edit qilindi ✅")
+    i = true
 }
 
 async function deleteRender(id) {
